@@ -34,13 +34,18 @@ export default function App() {
     setError("");
     setResult(null);
     if (!nextFile) return;
-    const allowed = ["image/png", "image/jpeg", "image/webp"];
-    if (!allowed.includes(nextFile.type)) {
-      setError("Please choose a PNG, JPG, JPEG, or WEBP image.");
+
+    const validExtensions = [".png", ".jpg", ".jpeg", ".webp", ".dcm"];
+    const fileExt = nextFile.name
+      .slice(nextFile.name.lastIndexOf("."))
+      .toLowerCase();
+
+    if (!validExtensions.includes(fileExt)) {
+      setError("Please choose a PNG, JPG, JPEG, WEBP, or DICOM (.dcm) image.");
       return;
     }
-    if (nextFile.size > 10 * 1024 * 1024) {
-      setError("The image must be 10 MB or smaller.");
+    if (nextFile.size > 20 * 1024 * 1024) {
+      setError("The image must be 20 MB or smaller.");
       return;
     }
     setFile(nextFile);
@@ -84,9 +89,9 @@ export default function App() {
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  const isMock = result?.model_mode === "mock_demo";
-  const pneumonia = result?.pneumonia_probability;
-  const normal = result?.normal_probability;
+  const isMock = result?.model_mode === "mock_demo" || result?.model_mode === "mock";
+  const pneumonia = result?.pneumonia_probability ?? 0;
+  const normal = result?.normal_probability ?? 0;
 
   return (
     <div className="app-shell">
@@ -126,7 +131,7 @@ export default function App() {
             <input
               ref={inputRef}
               type="file"
-              accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+              accept=".png,.jpg,.jpeg,.webp,.dcm"
               hidden
               onChange={(event) => chooseFile(event.target.files?.[0])}
             />
@@ -140,8 +145,8 @@ export default function App() {
                   <UploadCloud size={26} />
                 </span>
                 <strong>Choose chest X-ray</strong>
-                <span>Click to browse PNG, JPG or WEBP</span>
-                <small>Maximum file size: 10 MB</small>
+                <span>Click to browse PNG, JPG, WEBP, or DICOM</span>
+                <small>Maximum file size: 20 MB</small>
               </button>
             ) : (
               <div className="preview-wrap">
@@ -204,8 +209,8 @@ export default function App() {
                 </div>
                 <h3>Waiting for an image</h3>
                 <p>
-                  Your prediction summary and image checks will appear here
-                  after you run the analysis.
+                  Your prediction summary will appear here after you run the
+                  analysis.
                 </p>
                 <div className="empty-row">
                   <span>Prediction summary</span>
@@ -219,8 +224,8 @@ export default function App() {
             ) : result.prediction === null ? (
               <div className="quality-fail">
                 <ShieldAlert size={25} />
-                <h3>Image quality checks not passed</h3>
-                <p>{result.message}</p>
+                <h3>Analysis not completed</h3>
+                <p>{result.message || "Unable to process the image."}</p>
               </div>
             ) : (
               <div className="result-content">
@@ -242,7 +247,7 @@ export default function App() {
                   <div className="progress-track">
                     <div
                       className="progress-fill"
-                      style={{ width: `${pneumonia * 100}%` }}
+                      style={{ width: `${Math.min(pneumonia * 100, 100)}%` }}
                     />
                   </div>
                 </div>
@@ -255,41 +260,48 @@ export default function App() {
                   <div className="progress-track">
                     <div
                       className="progress-fill normal-fill"
-                      style={{ width: `${normal * 100}%` }}
+                      style={{ width: `${Math.min(normal * 100, 100)}%` }}
                     />
                   </div>
                 </div>
 
-                <div className="quality-heading">
-                  <h4>Technical image checks</h4>
-                  <span
-                    className={
-                      result.quality.is_usable
-                        ? "quality-tag pass"
-                        : "quality-tag warn"
-                    }
-                  >
-                    {result.quality.is_usable ? "Passed heuristics" : "Review"}
-                  </span>
-                </div>
-                <div className="quality-grid">
-                  {Object.entries(result.quality.checks || {}).map(
-                    ([name, passed]) => (
-                      <div className="quality-item" key={name}>
-                        {passed ? (
-                          <CheckCircle2 size={16} />
-                        ) : (
-                          <ShieldAlert size={16} />
-                        )}
-                        <span>
-                          {name.charAt(0).toUpperCase() + name.slice(1)}
-                        </span>
-                        <strong>{passed ? "Pass" : "Check"}</strong>
-                      </div>
-                    ),
-                  )}
-                </div>
-                <p className="quality-note">{result.quality.note}</p>
+                {result.quality && (
+                  <>
+                    <div className="quality-heading">
+                      <h4>Technical image checks</h4>
+                      <span
+                        className={
+                          result.quality.is_usable
+                            ? "quality-tag pass"
+                            : "quality-tag warn"
+                        }
+                      >
+                        {result.quality.is_usable ? "Passed heuristics" : "Review"}
+                      </span>
+                    </div>
+                    <div className="quality-grid">
+                      {Object.entries(result.quality.checks || {}).map(
+                        ([name, passed]) => (
+                          <div className="quality-item" key={name}>
+                            {passed ? (
+                              <CheckCircle2 size={16} />
+                            ) : (
+                              <ShieldAlert size={16} />
+                            )}
+                            <span>
+                              {name.charAt(0).toUpperCase() + name.slice(1)}
+                            </span>
+                            <strong>{passed ? "Pass" : "Check"}</strong>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                    {result.quality.note && (
+                      <p className="quality-note">{result.quality.note}</p>
+                    )}
+                  </>
+                )}
+
                 {result.explanation && (
                   <p className="explanation">{result.explanation}</p>
                 )}

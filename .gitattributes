@@ -1,0 +1,5 @@
+*.keras filter=lfs diff=lfs merge=lfs -text
+*.keras.zip filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.parquet filter=lfs diff=lfs merge=lfs -text

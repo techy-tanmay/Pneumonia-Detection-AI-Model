@@ -1,0 +1,30 @@
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Node.js
+node_modules/
+dist/
+
+# Uploaded images
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Generated outputs
+backend/outputs/*
+!backend/outputs/.gitkeep
+
+# Model checkpoints
+backend/models/*.pth
+backend/models/*.pt
+backend/models/*.onnx
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+

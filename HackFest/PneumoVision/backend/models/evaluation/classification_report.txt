@@ -1,0 +1,15 @@
+PneumoVision - DenseNet-121 Classification Report
+Model: best_final_model.keras | Threshold: 0.85
+Test set: 624 images (234 Normal, 390 Pneumonia)
+
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.53      0.59       234
+   Pneumonia       0.75      0.85      0.79       390
+
+    accuracy                           0.73       624
+   macro avg       0.71      0.69      0.69       624
+weighted avg       0.72      0.73      0.72       624
+
+Accuracy: 0.7260
+ROC-AUC: 0.7512

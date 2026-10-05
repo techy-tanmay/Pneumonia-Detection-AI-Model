@@ -1,0 +1,274 @@
+{
+  "primary_detection_model": {
+    "id": "rsna_fasterrcnn_v2",
+    "name": "Faster R-CNN ResNet50-FPN v2 (RSNA Best)",
+    "type": "detection",
+    "task": "Pneumonia-associated opacity localization & bounding box detection",
+    "architecture": "Faster R-CNN (ResNet50-FPN v2 backbone)",
+    "framework": "PyTorch 2.14 / Torchvision",
+    "dataset": "RSNA Pneumonia Detection Challenge",
+    "input_size": [
+      512,
+      512,
+      3
+    ],
+    "score_threshold": 0.75,
+    "val_score": 0.7944,
+    "weights_file": "backend/models/rsna_fasterrcnn_best.pth",
+    "meta_file": "backend/models/rsna_fasterrcnn_meta.json"
+  },
+  "classification_models": [
+    {
+      "id": "best_final_model",
+      "name": "DenseNet-121 Best Final Model (Fine-tuned)",
+      "category": "best_models",
+      "description": "Best overall fine-tuned DenseNet classification model",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\best_models\\best_final_model.keras"
+    },
+    {
+      "id": "BEST_PNEUMONIA_MODEL",
+      "name": "Best Pneumonia Model (Champion)",
+      "category": "best_models",
+      "description": "Highest validation score pneumonia classifier",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\best_models\\BEST_PNEUMONIA_MODEL.keras"
+    },
+    {
+      "id": "final_pneumonia_model",
+      "name": "Final Pneumonia Model",
+      "category": "best_models",
+      "description": "Final stage converged pneumonia classifier",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\best_models\\final_pneumonia_model.keras"
+    },
+    {
+      "id": "improved_best_model",
+      "name": "Improved Best Model",
+      "category": "best_models",
+      "description": "Enhanced architecture variant with improved regularisation",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\best_models\\improved_best_model.keras"
+    },
+    {
+      "id": "best_stage1",
+      "name": "Stage 1 Feature Extractor Best",
+      "category": "best_models",
+      "description": "Best checkpoint during Stage 1 frozen backbone training",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\best_models\\best_stage1.keras"
+    },
+    {
+      "id": "imagenet_stage1",
+      "name": "ImageNet Transfer Stage 1",
+      "category": "imagenet_transfer",
+      "description": "DenseNet transfer baseline with ImageNet pretrained weights (Stage 1)",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\imagenet_transfer\\imagenet_stage1.keras"
+    },
+    {
+      "id": "imagenet_stage1_final",
+      "name": "ImageNet Transfer Stage 1 Final",
+      "category": "imagenet_transfer",
+      "description": "Final checkpoint of ImageNet transfer Stage 1",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\imagenet_transfer\\imagenet_stage1_final.keras"
+    },
+    {
+      "id": "imagenet_stage2",
+      "name": "ImageNet Transfer Stage 2 (Fine-tuned)",
+      "category": "imagenet_transfer",
+      "description": "Full unfrozen fine-tuning with ImageNet backbone",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\imagenet_transfer\\imagenet_stage2.keras"
+    },
+    {
+      "id": "viral_aware_stage1",
+      "name": "Viral-Aware Stage 1",
+      "category": "viral_aware",
+      "description": "Specialized on distinguishing viral vs bacterial pneumonia presentations (Stage 1)",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\viral_aware\\viral_aware_stage1.keras"
+    },
+    {
+      "id": "viral_aware_stage1_final",
+      "name": "Viral-Aware Stage 1 Final",
+      "category": "viral_aware",
+      "description": "Final checkpoint for viral-aware Stage 1",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\viral_aware\\viral_aware_stage1_final.keras"
+    },
+    {
+      "id": "viral_aware_stage2",
+      "name": "Viral-Aware Stage 2 (Fine-tuned)",
+      "category": "viral_aware",
+      "description": "Deep fine-tuned viral-sensitive chest radiograph model",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\viral_aware\\viral_aware_stage2.keras"
+    },
+    {
+      "id": "viral_aware_stage2_final",
+      "name": "Viral-Aware Stage 2 Final",
+      "category": "viral_aware",
+      "description": "Converged viral-aware multi-stage classifier",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\viral_aware\\viral_aware_stage2_final.keras"
+    },
+    {
+      "id": "zoom_crop_stage1",
+      "name": "Zoom-Crop Augmented Stage 1",
+      "category": "zoom_crop",
+      "description": "Trained with localized lung-field zoom & crop data augmentation (Stage 1)",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\zoom_crop\\zoom_crop_stage1.keras"
+    },
+    {
+      "id": "zoom_crop_stage1_final",
+      "name": "Zoom-Crop Augmented Stage 1 Final",
+      "category": "zoom_crop",
+      "description": "Final weights for zoom-crop Stage 1",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\zoom_crop\\zoom_crop_stage1_final.keras"
+    },
+    {
+      "id": "zoom_crop_stage2",
+      "name": "Zoom-Crop Augmented Stage 2 (Fine-tuned)",
+      "category": "zoom_crop",
+      "description": "Deep fine-tuned zoom-crop augmented classifier",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\zoom_crop\\zoom_crop_stage2.keras"
+    },
+    {
+      "id": "zoom_crop_stage2_final",
+      "name": "Zoom-Crop Augmented Stage 2 Final",
+      "category": "zoom_crop",
+      "description": "Converged zoom-crop model weights",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\zoom_crop\\zoom_crop_stage2_final.keras"
+    },
+    {
+      "id": "pneu_v2",
+      "name": "Pneumonia Architecture v2",
+      "category": "experimental_v2",
+      "description": "Version 2 architecture iteration with modernized head",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\experimental_v2\\pneu_v2.keras"
+    },
+    {
+      "id": "pneu_v2_bn_adapted",
+      "name": "Pneumonia v2 (BN-Adapted)",
+      "category": "experimental_v2",
+      "description": "Domain-adapted Batch Normalization statistics for varied hospital X-ray scanners",
+      "type": "classification",
+      "framework": "Keras 3 / PyTorch",
+      "input_size": [
+        224,
+        224,
+        3
+      ],
+      "file_path": "backend\\models\\classification\\experimental_v2\\pneu_v2_bn_adapted.keras"
+    }
+  ]
+}

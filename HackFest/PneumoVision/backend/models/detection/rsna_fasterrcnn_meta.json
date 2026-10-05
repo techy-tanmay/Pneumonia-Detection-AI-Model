@@ -1,0 +1,7 @@
+{
+  "model_version": "v2",
+  "image_size": 512,
+  "num_classes": 2,
+  "score_threshold": 0.7500000000000002,
+  "val_score": 0.7944340277777777
+}

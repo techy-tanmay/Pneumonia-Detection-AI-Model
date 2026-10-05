@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PneumoVision — AI-Assisted Chest X-ray Analysis and Pneumonia-Associated Opacity Localization using Faster R-CNN and DenseNet-121.">
+    <title>PneumoVision — AI Chest X-ray Analysis & Opacity Localization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Top Medical Navigation Bar -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-group">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">Pneumo<span class="brand-accent">Vision</span></span>
+                    <span class="brand-subtitle">AI Chest X-ray Analysis</span>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#analysis-section" class="nav-item active">Analysis</a>
+                <a href="#workflow-section" class="nav-item">How It Works</a>
+                <button id="open-history-btn" class="nav-btn-history">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    History <span id="history-counter" class="history-pill">0</span>
+                </button>
+            </nav>
+
+            <div class="system-status-group">
+                <div class="status-indicator-dot online" id="status-dot"></div>
+                <span class="status-label" id="status-text">Backend Connecting...</span>
+                <span class="device-pill" id="device-pill">CPU</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Medical Disclaimer Banner -->
+    <div class="disclaimer-banner">
+        <div class="disclaimer-content">
+            <span class="disclaimer-tag">RESEARCH & DECISION-SUPPORT PROTOTYPE</span>
+            <p>This software is strictly for demonstration and research purposes. AI model predictions are <strong>not a medical diagnosis</strong> and must not replace professional clinical evaluation by a qualified healthcare professional.</p>
+        </div>
+    </div>
+
+    <main class="main-content">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-badge">KLE Tech HackFest 2026 Edition</div>
+            <h1 class="hero-title">Intelligent Chest X-ray Analysis</h1>
+            <p class="hero-description">
+                Upload a chest radiograph for automated pneumonia localization & dual-engine classification powered by RSNA-trained <strong>Faster R-CNN ResNet50-FPN v2</strong> and fine-tuned <strong>DenseNet-121</strong>.
+            </p>
+
+            <!-- Quick Sample Radiographs for HackFest Judges -->
+            <div class="quick-samples-bar">
+                <span class="quick-samples-label">Quick Demo Radiographs:</span>
+                <div class="quick-samples-chips">
+                    <button class="sample-chip" data-sample="sample_chest_radiograph.dcm">
+                        <span class="chip-ext">DICOM</span> sample_chest_radiograph.dcm
+                    </button>
+                    <button class="sample-chip" data-sample="sample_pneumonia_right_opacity.png">
+                        <span class="chip-ext">PNG</span> Right Opacity Sample
+                    </button>
+                    <button class="sample-chip" data-sample="sample_bilateral_opacities.jpg">
+                        <span class="chip-ext">JPG</span> Bilateral Infiltrates
+                    </button>
+                    <button class="sample-chip" data-sample="sample_normal_chest.png">
+                        <span class="chip-ext">PNG</span> Normal Control Radiograph
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Analysis Dashboard Grid -->
+        <section id="analysis-section" class="analysis-grid">
+
+            <!-- Left Panel: Upload, Model Configuration & Controls -->
+            <div class="panel upload-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">1. Radiograph Input</h2>
+                    <span class="panel-badge">Step 1 of 2</span>
+                </div>
+
+                <!-- Dropzone Area -->
+                <div id="dropzone" class="dropzone">
+                    <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.dcm,.dicom" class="file-input-hidden">
+                    <div class="dropzone-inner">
+                        <div class="upload-icon-wrapper">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <h3 class="upload-heading">Drag & drop chest X-ray here</h3>
+                        <p class="upload-hint">Supports DICOM (.dcm), PNG, JPG, JPEG</p>
+                        <button type="button" id="browse-btn" class="btn-secondary">Browse X-ray</button>
+                    </div>
+                </div>
+
+                <!-- File Summary Card -->
+                <div id="file-summary" class="file-summary-card hidden">
+                    <div class="file-icon-box">
+                        <span id="file-badge-fmt" class="file-format-badge">DCM</span>
+                    </div>
+                    <div class="file-details">
+                        <div id="file-name-text" class="file-name">filename.dcm</div>
+                        <div class="file-meta-row">
+                            <span id="file-size-text" class="file-size">1.2 MB</span>
+                            <span class="meta-separator">•</span>
+                            <span id="file-type-text" class="file-type">Chest Radiograph</span>
+                        </div>
+                    </div>
+                    <button type="button" id="remove-file-btn" class="btn-icon" title="Remove file">×</button>
+                </div>
+
+                <!-- Automated Dual-Engine Architecture Card -->
+                <div class="engine-info-card">
+                    <div class="engine-info-header">
+                        <div class="engine-icon-pulse"></div>
+                        <span class="engine-info-title">Automated Dual-Engine Pipeline</span>
+                    </div>
+                    <p class="engine-info-desc">
+                        Every analysis runs dual deep learning architectures simultaneously:
+                    </p>
+                    <div class="engine-pills-list">
+                        <div class="engine-pill-item">
+                            <span class="pill-dot teal"></span>
+                            <div class="pill-text-wrap">
+                                <strong>Faster R-CNN (ResNet50-FPN v2)</strong>
+                                <span>Focal opacity detection & anatomical zone mapping</span>
+                            </div>
+                        </div>
+                        <div class="engine-pill-item">
+                            <span class="pill-dot indigo"></span>
+                            <div class="pill-text-wrap">
+                                <strong>DenseNet-121 (pneumonia_final_best)</strong>
+                                <span>Whole-image pneumonia pattern confirmation (threshold: 85%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Analysis CTA Button -->
+                <button type="button" id="analyze-btn" class="btn-primary" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <span>Analyze Radiograph</span>
+                </button>
+
+                <!-- Processing Stepper Progress -->
+                <div id="progress-container" class="progress-box hidden">
+                    <div class="progress-header">
+                        <span id="progress-status-title">Processing Pipeline...</span>
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="stepper">
+                        <div class="step-item" id="step-upload">
+                            <div class="step-circle">1</div>
+                            <span class="step-text">Uploaded</span>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step-item" id="step-preprocess">
+                            <div class="step-circle">2</div>
+                            <span class="step-text">Preprocessing</span>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step-item" id="step-detect">
+                            <div class="step-circle">3</div>
+                            <span class="step-text">Detection</span>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step-item" id="step-localize">
+                            <div class="step-circle">4</div>
+                            <span class="step-text">Localization</span>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step-item" id="step-complete">
+                            <div class="step-circle">5</div>
+                            <span class="step-text">Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Medical Radiograph Viewer & Real Detection Findings -->
+            <div class="panel viewer-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">2. Analysis & Localization Findings</h2>
+                    <div class="viewer-actions">
+                        <button id="zoom-in-btn" class="viewer-tool-btn" title="Zoom In">+</button>
+                        <button id="zoom-out-btn" class="viewer-tool-btn" title="Zoom Out">−</button>
+                        <button id="zoom-reset-btn" class="viewer-tool-btn" title="Reset View">Reset</button>
+                        <button id="invert-view-btn" class="viewer-tool-btn" title="Invert Grayscale">Invert</button>
+                        <button id="fullscreen-btn" class="viewer-tool-btn" title="Fullscreen View">⛶</button>
+                    </div>
+                </div>
+
+                <!-- Radiograph Canvas / Viewer Container -->
+                <div id="viewer-container" class="viewer-stage">
+                    <div id="viewer-placeholder" class="viewer-placeholder">
+                        <div class="placeholder-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+                        <h3>No radiograph loaded</h3>
+                        <p>Upload a DICOM or image file on the left to begin AI analysis</p>
+                    </div>
+
+                    <!-- Interactive X-Ray Canvas Wrapper -->
+                    <div id="image-viewport" class="image-viewport hidden">
+                        <div id="transform-wrapper" class="transform-wrapper">
+                            <img id="xray-image" class="xray-image" alt="Chest Radiograph" src="">
+                            <canvas id="overlay-canvas" class="overlay-canvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real Detection Output Findings -->
+                <div id="findings-container" class="findings-container hidden">
+
+                    <!-- Finding Banner Card -->
+                    <div id="finding-banner" class="finding-banner positive">
+                        <div class="finding-banner-content">
+                            <div class="finding-label-row">
+                                <span class="finding-tag">DIAGNOSTIC FINDING</span>
+                                <span id="top-confidence-badge" class="confidence-badge">87.4% Confidence</span>
+                            </div>
+                            <h3 id="finding-text" class="finding-heading">Pneumonia-associated opacity detected</h3>
+                            <p id="finding-desc" class="finding-subtext">AI model detected a region of interest consistent with pneumonia-associated opacity.</p>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-label">Max Confidence</span>
+                            <span id="metric-confidence" class="metric-value">87.4%</span>
+                            <div class="confidence-meter-track">
+                                <div id="confidence-meter-fill" class="confidence-meter-fill" style="width: 87.4%"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <span class="metric-label">Detected Regions</span>
+                            <span id="metric-regions" class="metric-value">1 Region</span>
+                            <span class="metric-sub">Faster R-CNN boxes</span>
+                        </div>
+
+                        <div class="metric-card">
+                            <span class="metric-label">Approximate Localization</span>
+                            <span id="metric-localization" class="metric-value highlight-zone">Right Lung Mid Zone</span>
+                            <span class="metric-sub">Radiological position</span>
+                        </div>
+
+                        <div class="metric-card">
+                            <span class="metric-label">Pipeline Latency</span>
+                            <span id="metric-latency" class="metric-value">1,240 ms</span>
+                            <span class="metric-sub">Dual-engine total time</span>
+                        </div>
+                    </div>
+
+                    <!-- DenseNet Classification Confirmation Card -->
+                    <div id="secondary-clf-card" class="secondary-clf-box">
+                        <div class="clf-header">
+                            <div class="clf-title-group">
+                                <span class="clf-badge">CLASSIFICATION ENGINE</span>
+                                <span id="clf-model-name" class="clf-name">DenseNet-121 (pneumonia_final_best)</span>
+                            </div>
+                            <span id="clf-status-badge" class="clf-verdict-pill">Pneumonia Confirmed</span>
+                        </div>
+                        <div class="clf-body">
+                            <div class="clf-prob-group">
+                                <span class="clf-prob-label">Pneumonia Probability:</span>
+                                <span id="clf-prob-val" class="clf-prob-val">91.8%</span>
+                            </div>
+                            <div class="confidence-meter-track">
+                                <div id="clf-prob-bar" class="confidence-meter-fill clf-bar" style="width: 91.8%"></div>
+                            </div>
+                            <div class="clf-subtext-row">
+                                <span>Optimal Decision Threshold: <strong>85.0%</strong></span>
+                                <span id="clf-latency-text">Latency: 140 ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multiple Detected Regions Table -->
+                    <div id="regions-section" class="regions-list-card">
+                        <div class="regions-header">
+                            <h4 class="regions-title">Detected Regions of Interest</h4>
+                            <span id="regions-count-pill" class="pill-count">1 Box</span>
+                        </div>
+                        <div id="regions-table-body" class="regions-table-wrap">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Action Bar: Download Report -->
+                    <div class="action-buttons-row">
+                        <button id="download-html-report-btn" class="btn-report">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download Formal Report (HTML)
+                        </button>
+                        <button id="download-text-report-btn" class="btn-report-secondary">
+                            Download Text / JSON
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Workflow Section -->
+        <section id="workflow-section" class="info-section">
+            <div class="section-title-wrap">
+                <span class="section-eyebrow">Pipeline Workflow</span>
+                <h2 class="section-h2">Pre-processing to Localization</h2>
+                <p class="section-lead">A clinical-grade, 4-stage pipeline for chest radiograph opacity detection and confirmation.</p>
+            </div>
+
+            <div class="workflow-steps">
+                <div class="wf-step">
+                    <div class="wf-number">01</div>
+                    <h4 class="wf-step-title">Ingest Radiograph</h4>
+                    <p class="wf-step-desc">Accepts DICOM (.dcm), PNG, JPG, or JPEG. Auto-detects photometric interpretation (MONOCHROME1 vs MONOCHROME2).</p>
+                </div>
+                <div class="wf-step">
+                    <div class="wf-number">02</div>
+                    <h4 class="wf-step-title">Percentile Normalization</h4>
+                    <p class="wf-step-desc">Applies 1st & 99th percentile clipping to eliminate artifacts and standardizes contrast dynamic range to [0, 1].</p>
+                </div>
+                <div class="wf-step">
+                    <div class="wf-number">03</div>
+                    <h4 class="wf-step-title">Dual-Engine Inference</h4>
+                    <p class="wf-step-desc">Faster R-CNN localizes focal opacities (512x512) while DenseNet-121 validates global pneumonia characteristics (224x224).</p>
+                </div>
+                <div class="wf-step">
+                    <div class="wf-number">04</div>
+                    <h4 class="wf-step-title">Coordinate Rescaling</h4>
+                    <p class="wf-step-desc">Scales bounding boxes back to original patient resolution, maps anatomical lung zones, and prepares formal clinical reports.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal-backdrop hidden">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">Local Analysis History</h3>
+                <button id="close-history-btn" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="history-disclaimer">History is stored locally in your browser (localStorage). No patient identifiers are stored.</p>
+                <div id="history-list" class="history-items-container">
+                    <div class="empty-history">No analyses conducted yet.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="clear-history-btn" class="btn-secondary-danger">Clear History</button>
+                <button id="dismiss-history-btn" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Modal Viewer -->
+    <div id="fullscreen-modal" class="fullscreen-backdrop hidden">
+        <button id="close-fullscreen-btn" class="fullscreen-close-btn">&times; Exit Fullscreen</button>
+        <div class="fullscreen-content">
+            <div id="fs-transform-wrapper" class="transform-wrapper">
+                <img id="fs-xray-image" class="xray-image" alt="Chest Radiograph" src="">
+                <canvas id="fs-overlay-canvas" class="overlay-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="footer-logo">Pneumo<span>Vision</span></span>
+                <span class="footer-copy">KLE Tech HackFest 2026 Project • AI-Assisted Chest X-ray Analysis Prototype</span>
+            </div>
+            <div class="footer-disclaimer">
+                Safety Notice: Research prototype only. Not intended for direct clinical or diagnostic usage.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

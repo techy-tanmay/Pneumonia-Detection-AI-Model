@@ -1,0 +1,16 @@
+{
+  "model": "best_final_model / DenseNet-121 (Fine-tuned)",
+  "deployed_as": "pneumonia_final_best.keras",
+  "threshold": 0.85,
+  "test_set": "624 images (234 Normal, 390 Pneumonia)",
+  "accuracy": 0.726,
+  "precision": 0.7483,
+  "recall_sensitivity": 0.8462,
+  "specificity": 0.5256,
+  "f1_score": 0.7942,
+  "roc_auc": 0.7512,
+  "tp": 330,
+  "tn": 123,
+  "fp": 111,
+  "fn": 60
+}
